@@ -1,0 +1,46 @@
+---
+- name: Nom d'hôte
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Nom d'hôte résolu localement, pour que sudo ne râle pas
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ inventory_hostname }}"
+
+- name: Fuseau horaire
+  community.general.timezone:
+    name: "{{ timezone_linux }}"
+
+- name: Paquet chrony (client NTP)
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Configuration NTP
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redémarrer chrony
+
+- name: Service chrony démarré
+  ansible.builtin.service:
+    name: chrony
+    state: started
+    enabled: true
+
+- name: Compte d'administration
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups: sudo
+    append: true
+    shell: /bin/bash
+    password: "{{ admin_password | password_hash('sha512') }}"
+    update_password: on_create
+  no_log: true

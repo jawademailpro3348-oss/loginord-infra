@@ -1,0 +1,8 @@
+---
+# Valeurs communes à tout LogiNord
+ntp_server: 0.fr.pool.ntp.org
+timezone_linux: Europe/Paris
+timezone_windows: Romance Standard Time   # = Paris côté Windows
+
+admin_user: sysadmin
+admin_password: "{{ vault_admin_password }}"

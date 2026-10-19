@@ -1,0 +1,3 @@
+---
+# Le site B a son propre serveur de temps (plus tard : dc02.loginord.lan)
+ntp_server: time.windows.com

@@ -1,0 +1,47 @@
+---
+- name: Nom d'hôte
+  ansible.windows.win_hostname:
+    name: "{{ inventory_hostname }}"
+  register: win_hostname_result
+
+- name: Redémarrage si le nom a changé
+  ansible.windows.win_reboot:
+  when: win_hostname_result.reboot_required
+
+- name: Fuseau horaire
+  community.windows.win_timezone:
+    timezone: "{{ timezone_windows }}"
+
+- name: Serveur NTP
+  ansible.windows.win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+    name: NtpServer
+    data: "{{ ntp_server }},0x9"
+    type: string
+  notify: Redémarrer w32time
+
+- name: Mode NTP (et pas synchro par le domaine)
+  ansible.windows.win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+    name: Type
+    data: NTP
+    type: string
+  notify: Redémarrer w32time
+
+- name: Service de temps démarré
+  ansible.windows.win_service:
+    name: w32time
+    start_mode: auto
+    state: started
+
+- name: Compte d'administration
+  ansible.windows.win_user:
+    name: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    update_password: on_create
+    password_never_expires: true
+    groups:
+      - "{{ win_admin_group }}"
+    groups_action: add
+    state: present
+  no_log: true

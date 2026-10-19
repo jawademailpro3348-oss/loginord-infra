@@ -1,0 +1,6 @@
+---
+# Valeurs par défaut du rôle : faites pour être surchargées par group_vars / host_vars
+ntp_server: pool.ntp.org
+timezone_linux: Etc/UTC
+timezone_windows: UTC
+admin_user: admin

@@ -1,0 +1,8 @@
+---
+ansible_connection: winrm
+ansible_port: 5985
+ansible_winrm_transport: ntlm
+ansible_user: Administrateur             # "Administrator" si ton Windows est en anglais
+ansible_password: "{{ vault_win_password }}"
+
+win_admin_group: Administrateurs         # "Administrators" si ton Windows est en anglais

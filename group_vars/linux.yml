@@ -1,0 +1,4 @@
+---
+ansible_user: jawad                      # le compte créé à l'installation de Debian
+ansible_become: true
+ansible_become_password: "{{ vault_linux_become_password }}"
