@@ -1,2 +1,13 @@
+# Ansible
 *.retry
+
+# Secrets : jamais dans le dépôt
 .vault_pass
+*.key
+*.pem
+
+# Archives et fichiers temporaires
+*.zip
+*.swp
+*~
+.DS_Store
