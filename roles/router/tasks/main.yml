@@ -1,0 +1,29 @@
+---
+- name: Autoriser le routage
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-routeur.conf
+    sysctl_set: true
+    state: present
+
+- name: Paquet nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+
+- name: Pare-feu du routeur
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: "0755"
+    validate: nft -c -f %s
+  notify: Recharger nftables
+
+- name: Service nftables démarré
+  ansible.builtin.service:
+    name: nftables
+    state: started
+    enabled: true

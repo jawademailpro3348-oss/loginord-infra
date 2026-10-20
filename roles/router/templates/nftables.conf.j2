@@ -1,0 +1,28 @@
+#!/usr/sbin/nft -f
+# {{ ansible_managed }}
+flush ruleset
+
+table inet filter {
+    # Ce qui arrive AU routeur lui-même
+    chain input {
+        type filter hook input priority 0; policy drop;
+        ct state established,related accept
+        iifname "lo" accept
+        meta l4proto { icmp, ipv6-icmp } accept
+        iifname "{{ mgmt_interface }}" tcp dport 22 accept      # SSH (Ansible)
+        iifname "{{ wan_interface }}" udp dport {{ wg_port }} accept  # WireGuard
+        iifname "wg0" ip protocol ospf accept                     # OSPF (protocole 89)
+    }
+
+    # Ce qui TRAVERSE le routeur
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+        ct state established,related accept
+        iifname "{{ lan_interface }}" oifname "wg0" accept
+        iifname "wg0" oifname "{{ lan_interface }}" accept
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}

@@ -1,0 +1,19 @@
+---
+lan_interface: enp0s9           # carte 3 : réseau interne "lan-b"
+wan_interface: enp0s10          # carte 4 : réseau interne "wan"
+wan_ip: 192.0.2.2
+
+interfaces:
+  - name: "{{ lan_interface }}"
+    address: 10.1.20.1/24
+  - name: "{{ wan_interface }}"
+    address: "{{ wan_ip }}/24"
+
+wg_address: 10.255.0.2/30
+wg_peer: rtr-a
+wg_public_key: "p6mwev5zFwS73DHsefztTYGgabNgHX+y6bpJKqTUTRM="
+
+ospf_router_id: 10.255.0.2
+ospf_networks:
+  - 10.255.0.0/30
+  - 10.1.20.0/24

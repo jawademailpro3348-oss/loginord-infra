@@ -1,0 +1,20 @@
+! {{ ansible_managed }}
+frr defaults traditional
+hostname {{ inventory_hostname }}
+!
+{% for itf in ospf_p2p_interfaces %}
+interface {{ itf }}
+ ip ospf network point-to-point
+!
+{% endfor %}
+{% for itf in ospf_passive_interfaces %}
+interface {{ itf }}
+ ip ospf passive
+!
+{% endfor %}
+router ospf
+ ospf router-id {{ ospf_router_id }}
+{% for net in ospf_networks %}
+ network {{ net }} area 0
+{% endfor %}
+!

@@ -1,0 +1,20 @@
+---
+- name: Paquet WireGuard
+  ansible.builtin.apt:
+    name: wireguard-tools
+    state: present
+
+- name: Configuration du tunnel
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: /etc/wireguard/wg0.conf
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Redémarrer wg0
+
+- name: Tunnel monté et lancé au démarrage
+  ansible.builtin.service:
+    name: wg-quick@wg0
+    state: started
+    enabled: true

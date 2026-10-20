@@ -1,0 +1,7 @@
+---
+interfaces:
+  - name: enp0s9                # carte 3 : réseau interne "lan-b"
+    address: 10.1.20.10/24
+    routes:
+      - to: 10.1.0.0/16
+        via: 10.1.20.1

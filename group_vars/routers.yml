@@ -1,0 +1,7 @@
+---
+mgmt_interface: enp0s8          # carte Host-Only : Ansible passe par là, on n'y touche pas
+wg_port: 51820
+ospf_p2p_interfaces:
+  - wg0
+ospf_passive_interfaces:
+  - "{{ lan_interface }}"

@@ -1,0 +1,26 @@
+---
+- name: Outils de test réseau
+  ansible.builtin.apt:
+    name:
+      - traceroute
+      - tcpdump
+    state: present
+
+- name: Une interface = un fichier (jamais à la main)
+  ansible.builtin.template:
+    src: interface.j2
+    dest: "/etc/network/interfaces.d/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: interface_files
+
+- name: Relancer seulement les interfaces modifiées
+  ansible.builtin.shell: "ifdown {{ item.item.name }} 2>/dev/null; ifup {{ item.item.name }}"
+  loop: "{{ interface_files.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: item.changed

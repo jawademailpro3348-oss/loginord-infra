@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+auto {{ item.name }}
+iface {{ item.name }} inet static
+    address {{ item.address }}
+{% for route in item.routes | default([]) %}
+    post-up ip route replace {{ route.to }} via {{ route.via }} dev {{ item.name }}
+    pre-down ip route del {{ route.to }} via {{ route.via }} dev {{ item.name }} || true
+{% endfor %}

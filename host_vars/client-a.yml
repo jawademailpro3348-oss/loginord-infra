@@ -1,0 +1,9 @@
+---
+# La route par défaut reste sur la carte NAT (pour apt).
+# Tout le réseau LogiNord (10.1.0.0/16) passe par le routeur du site.
+interfaces:
+  - name: enp0s9                # carte 3 : réseau interne "lan-a"
+    address: 10.1.10.10/24
+    routes:
+      - to: 10.1.0.0/16
+        via: 10.1.10.1

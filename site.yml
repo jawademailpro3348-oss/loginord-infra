@@ -5,3 +5,19 @@
     - vault/secrets.yml
   roles:
     - baseline
+
+- name: Adresses IP des machines du lab (LAN, WAN)
+  hosts: routers:clients
+  vars_files:
+    - vault/secrets.yml
+  roles:
+    - network
+
+- name: Routeurs (routage, pare-feu, tunnel, OSPF)
+  hosts: routers
+  vars_files:
+    - vault/secrets.yml
+  roles:
+    - router
+    - wireguard
+    - frr
