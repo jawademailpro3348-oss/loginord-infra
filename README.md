@@ -1,12 +1,21 @@
-# LogiNord — infrastructure multi-site Linux / Windows
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="LogiNord : infrastructure multi-site Linux et Windows décrite en code avec Ansible" width="100%">
+</p>
 
-> Projet du cours **B3 Administration système Linux & Windows** (2026).
-> Une infrastructure fictive pour le client **LogiNord**, entièrement décrite en code avec **Ansible** :
-> deux sites, des serveurs Debian et Windows Server, un tunnel chiffré entre les sites, du routage dynamique et un accès d'administration sécurisé.
+<div align="center">
 
-**Auteur :** Jawad
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white)
+![Debian 13](https://img.shields.io/badge/Debian_13-A81D33?style=for-the-badge&logo=debian&logoColor=white)
+![Windows Server 2025](https://img.shields.io/badge/Windows_Server_2025-0078D4?style=for-the-badge)
+![WireGuard](https://img.shields.io/badge/WireGuard-88171A?style=for-the-badge&logo=wireguard&logoColor=white)
+![FRR OSPF](https://img.shields.io/badge/FRR_%2F_OSPF-2E7D32?style=for-the-badge)
+![VirtualBox](https://img.shields.io/badge/VirtualBox-183A61?style=for-the-badge&logo=virtualbox&logoColor=white)
 
----
+Projet réalisé par **Jawad** dans le cadre du cours *B3 Administration système Linux & Windows* (2026)
+
+</div>
+
+LogiNord est un client fictif avec deux sites, des serveurs Debian et Windows Server, et un besoin simple : que toute l'infrastructure puisse être reconstruite par n'importe quel administrateur. Ce dépôt la décrit entièrement en code, avec un tunnel chiffré entre les sites, du routage dynamique et un accès d'administration sécurisé.
 
 ## Sommaire
 
@@ -20,8 +29,6 @@
 8. [Documentation détaillée](#documentation-détaillée)
 9. [Ajouter un nouveau TP](#ajouter-un-nouveau-tp)
 
----
-
 ## Le besoin du client
 
 LogiNord a **deux sites** (A et B), des machines **Linux et Windows**, et quelques exigences qui guident tout le projet :
@@ -34,20 +41,16 @@ LogiNord a **deux sites** (A et B), des machines **Linux et Windows**, et quelqu
 | « Mes informaticiens doivent pouvoir intervenir de chez eux, sans ouvrir la porte aux pirates. » | SSH par clé uniquement, PowerShell Remoting, journaux lisibles | MC03 |
 | « Savoir qui a fait quoi. » | Une clé SSH par personne, journaux d'authentification | MC03 |
 
----
-
 ## Avancement des TP
 
 | TP | Sujet | État | Documentation |
 |---|---|---|---|
-| **MC01** | Ansible pour une infra multi-site (structure, inventaire, rôle `baseline`, vault, Windows via WinRM) | ✅ Terminé | [docs/mc01-ansible-multisite.md](docs/mc01-ansible-multisite.md) |
-| **MC02** | Le réseau côté système (routeurs Debian, nftables, WireGuard, FRR / OSPF) | ✅ Terminé | [docs/mc02-reseau-wireguard-ospf.md](docs/mc02-reseau-wireguard-ospf.md) |
-| **MC03** | Administration à distance sécurisée (SSH durci, PowerShell Remoting) | ✅ Terminé | [docs/mc03-administration-distance.md](docs/mc03-administration-distance.md) |
-| MC04 + | À venir (Active Directory, partages, supervision… selon le cours) | ⏳ | [docs/_modele-tp.md](docs/_modele-tp.md) |
+| **MC01** | Ansible pour une infra multi-site (structure, inventaire, rôle `baseline`, vault, Windows via WinRM) | ![Terminé](https://img.shields.io/badge/termin%C3%A9-2ea44f?style=flat-square) | [Voir le détail](docs/mc01-ansible-multisite.md) |
+| **MC02** | Le réseau côté système (routeurs Debian, nftables, WireGuard, FRR / OSPF) | ![Terminé](https://img.shields.io/badge/termin%C3%A9-2ea44f?style=flat-square) | [Voir le détail](docs/mc02-reseau-wireguard-ospf.md) |
+| **MC03** | Administration à distance sécurisée (SSH durci, PowerShell Remoting) | ![Terminé](https://img.shields.io/badge/termin%C3%A9-2ea44f?style=flat-square) | [Voir le détail](docs/mc03-administration-distance.md) |
+| MC04 + | À venir (Active Directory, partages, supervision… selon le cours) | ![À venir](https://img.shields.io/badge/%C3%A0%20venir-lightgrey?style=flat-square) | [Modèle de TP](docs/_modele-tp.md) |
 
 Critère commun à tous les TP : **`ansible-playbook site.yml` passe sans erreur, et le second passage affiche `changed=0`** (idempotence).
-
----
 
 ## Architecture du lab
 
@@ -78,22 +81,20 @@ flowchart LR
 
 | Machine | Rôle | Système | IP d'administration (Host-Only) | IP(s) du lab |
 |---|---|---|---|---|
-| `rtr-a` | Routeur du site A | Debian 13 | 192.168.56.10 | LAN 10.1.10.1/24 · WAN 192.0.2.1/24 · wg0 10.255.0.1/30 |
-| `rtr-b` | Routeur du site B | Debian 13 | 192.168.56.11 | LAN 10.1.20.1/24 · WAN 192.0.2.2/24 · wg0 10.255.0.2/30 |
+| `rtr-a` | Routeur du site A | Debian 13 | 192.168.56.10 | LAN 10.1.10.1/24, WAN 192.0.2.1/24, wg0 10.255.0.1/30 |
+| `rtr-b` | Routeur du site B | Debian 13 | 192.168.56.11 | LAN 10.1.20.1/24, WAN 192.0.2.2/24, wg0 10.255.0.2/30 |
 | `client-a` | Poste du site A | Debian 13 | 192.168.56.12 | 10.1.10.10/24 |
 | `client-b` | Poste du site B | Debian 13 | 192.168.56.13 | 10.1.20.10/24 |
-| `dc02` | Serveur Windows du site B | Windows Server 2025 Core | 192.168.56.20 | — |
+| `dc02` | Serveur Windows du site B | Windows Server 2025 Core | 192.168.56.20 |  |
 
 Chaque VM a aussi une carte **NAT** VirtualBox pour accéder à Internet (installation des paquets).
 Détails de l'environnement : [docs/00-environnement.md](docs/00-environnement.md).
-
----
 
 ## Structure du dépôt
 
 ```
 loginord-infra/
-├── README.md                  ← vous êtes ici
+├── README.md
 ├── ansible.cfg                réglages du projet (inventaire, fichier du mot de passe vault)
 ├── site.yml                   point d'entrée : quels rôles sur quels groupes
 ├── inventory/
@@ -117,8 +118,6 @@ loginord-infra/
 │   └── secrets.yml.exemple    la liste des variables attendues, avec des valeurs factices
 └── docs/                      la documentation détaillée de chaque TP
 ```
-
----
 
 ## Démarrage rapide
 
@@ -145,10 +144,8 @@ ansible-playbook site.yml                     # 2e passage : changed=0 attendu
 ansible-playbook site.yml --limit linux       # seulement les Debian (dc02 éteint, par exemple)
 ```
 
-> ⚠️ Le dépôt doit être cloné **dans le système de fichiers Linux** de WSL (`~/…`), pas sous `/mnt/c/…` :
+> **Attention :** le dépôt doit être cloné **dans le système de fichiers Linux** de WSL (`~/…`), pas sous `/mnt/c/…` :
 > Ansible ignore un `ansible.cfg` placé dans un dossier accessible en écriture à tous.
-
----
 
 ## Les rôles Ansible
 
@@ -160,8 +157,6 @@ ansible-playbook site.yml --limit linux       # seulement les Debian (dc02 étei
 | [`wireguard`](roles/wireguard/README.md) | routeurs | Tunnel `wg0` entre les sites (`Table = off`, multicast activé pour OSPF) | MC02 |
 | [`frr`](roles/frr/README.md) | routeurs | FRR + OSPF : chaque routeur annonce son LAN, les routes s'apprennent seules | MC02 |
 | [`ssh_hardening`](roles/ssh_hardening/README.md) | linux | Groupe `ssh-admins`, clés déposées, root et mots de passe refusés, validation `sshd -t` avant rechargement | MC03 |
-
----
 
 ## Secrets et sécurité
 
@@ -180,20 +175,16 @@ ansible-vault edit vault/secrets.yml     # modifier (éditeur : export EDITOR=na
 head -1 vault/secrets.yml                # doit afficher $ANSIBLE_VAULT;1.1;AES256
 ```
 
----
-
 ## Documentation détaillée
 
 | Document | Contenu |
 |---|---|
 | [docs/00-environnement.md](docs/00-environnement.md) | Le poste, VirtualBox, WSL, les réseaux, la création des VM (modèle Debian, Windows Server Core), les gestes manuels |
-| [docs/mc01-ansible-multisite.md](docs/mc01-ansible-multisite.md) | MC01 : structure du projet, inventaire à deux axes, précédence des variables, vault, Windows via WinRM |
-| [docs/mc02-reseau-wireguard-ospf.md](docs/mc02-reseau-wireguard-ospf.md) | MC02 : routeurs Debian, nftables, WireGuard, OSPF, vérifications |
-| [docs/mc03-administration-distance.md](docs/mc03-administration-distance.md) | MC03 : SSH durci, tests, journaux, PowerShell Remoting |
+| [Voir le détail](docs/mc01-ansible-multisite.md) | MC01 : structure du projet, inventaire à deux axes, précédence des variables, vault, Windows via WinRM |
+| [Voir le détail](docs/mc02-reseau-wireguard-ospf.md) | MC02 : routeurs Debian, nftables, WireGuard, OSPF, vérifications |
+| [Voir le détail](docs/mc03-administration-distance.md) | MC03 : SSH durci, tests, journaux, PowerShell Remoting |
 | [docs/depannage.md](docs/depannage.md) | Tous les problèmes rencontrés pendant les TP, leur cause et leur solution |
-| [docs/_modele-tp.md](docs/_modele-tp.md) | Le modèle à copier pour documenter un nouveau TP |
-
----
+| [Modèle de TP](docs/_modele-tp.md) | Le modèle à copier pour documenter un nouveau TP |
 
 ## Ajouter un nouveau TP
 
@@ -201,7 +192,7 @@ head -1 vault/secrets.yml                # doit afficher $ANSIBLE_VAULT;1.1;AES2
 2. Créer le ou les rôles dans `roles/` (un rôle = une responsabilité), avec un court `README.md`.
 3. Ajouter un play dans `site.yml` et, si besoin, des groupes dans `inventory/hosts.yml`.
 4. Mettre de nouveaux secrets dans le vault (préfixe `vault_`) et les déclarer dans `vault/secrets.yml.exemple`.
-5. Vérifier : `ansible-playbook site.yml` deux fois → `changed=0`.
+5. Vérifier : lancer `ansible-playbook site.yml` deux fois, le second passage doit afficher `changed=0`.
 6. Mettre à jour le tableau [Avancement des TP](#avancement-des-tp), puis :
    ```bash
    git add . && git commit -m "MCXX : <sujet>" && git tag mcXX && git push --follow-tags

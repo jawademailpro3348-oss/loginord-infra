@@ -1,6 +1,6 @@
-# MC02 — Le réseau côté système
+# MC02 : le réseau côté système
 
-[← Retour au README](../README.md)
+[Retour au README](../README.md)
 
 ## Objectif
 
@@ -10,8 +10,8 @@ Relier les deux sites de LogiNord : **un routeur Debian par site**, **un tunnel 
 
 ### Consignes du TP
 
-1. **Préparer** : 4 Debian — 2 routeurs, 2 clients — sur 3 réseaux internes (LAN A, WAN, LAN B).
-2. **Router** : un rôle routeur — IP, routage activé, nftables.
+1. **Préparer** : 4 Debian (2 routeurs, 2 clients) sur 3 réseaux internes (LAN A, WAN, LAN B).
+2. **Router** : un rôle routeur : IP, routage activé, nftables.
 3. **Relier** : WireGuard entre `rtr-a` et `rtr-b`, clés dans le vault.
 4. **Annoncer** : FRR et OSPF, chaque routeur annonce son LAN.
 
@@ -20,8 +20,6 @@ Relier les deux sites de LogiNord : **un routeur Debian par site**, **un tunnel 
 - `traceroute` de client-a vers client-b passe par les deux routeurs.
 - `show ip route ospf` affiche le LAN distant.
 - Tout survit à un redémarrage.
-
----
 
 ## Le lab
 
@@ -33,13 +31,11 @@ client-a ── LAN A ── rtr-a ══ wg0 (dans le WAN) ══ rtr-b ── 
 | | rtr-a | rtr-b | client-a | client-b |
 |---|---|---|---|---|
 | LAN (`enp0s9`) | 10.1.10.1/24 | 10.1.20.1/24 | 10.1.10.10/24 | 10.1.20.10/24 |
-| WAN (`enp0s10`) | 192.0.2.1/24 | 192.0.2.2/24 | — | — |
-| Tunnel `wg0` | 10.255.0.1/30 | 10.255.0.2/30 | — | — |
-| router-id OSPF | 10.255.0.1 | 10.255.0.2 | — | — |
+| WAN (`enp0s10`) | 192.0.2.1/24 | 192.0.2.2/24 |  |  |
+| Tunnel `wg0` | 10.255.0.1/30 | 10.255.0.2/30 |  |  |
+| router-id OSPF | 10.255.0.1 | 10.255.0.2 |  |  |
 
 La création des VM (modèle Debian + 4 clones) est décrite dans [00-environnement.md](00-environnement.md#4-créer-les-debian--un-modèle-quatre-clones).
-
----
 
 ## Ce qui a été construit
 
@@ -81,7 +77,7 @@ La carte Host-Only (`enp0s8`), par laquelle Ansible parle, n'est **jamais** gér
 | Chaîne | Politique | Autorisé |
 |---|---|---|
 | `input` (vers le routeur) | `drop` | connexions établies, `lo`, ICMP, **SSH sur la carte d'administration**, **UDP 51820 sur le WAN** (WireGuard), **OSPF (protocole 89) sur `wg0`** |
-| `forward` (à travers le routeur) | `drop` | connexions établies, **LAN → `wg0`** et **`wg0` → LAN** |
+| `forward` (à travers le routeur) | `drop` | connexions établies, **du LAN vers `wg0`** et **de `wg0` vers le LAN** |
 
 Le fichier est validé par `nft -c -f` **avant** d'être installé : une erreur de syntaxe ne peut pas casser le pare-feu.
 
@@ -144,8 +140,6 @@ interfaces:
         via: 10.1.10.1
 ```
 
----
-
 ## Résultats
 
 Second passage : `changed=0` sur les 4 machines.
@@ -162,7 +156,7 @@ peer: p6mw…TRM=
   latest handshake: 30 seconds ago
 ```
 
-**Voisinage OSPF** — état `Full` :
+**Voisinage OSPF**, à l'état `Full` :
 
 ```
 $ sudo vtysh -c "show ip ospf neighbor"
@@ -190,9 +184,9 @@ $ traceroute -n 10.1.20.10
 
 **Après redémarrage des 4 VM** : tunnel, voisinage OSPF, route et traceroute reviennent seuls.
 
-✅ traceroute par les deux routeurs · ✅ LAN distant appris par OSPF · ✅ tout survit au redémarrage.
-
----
+- [x] le traceroute passe par les deux routeurs
+- [x] le LAN distant est appris par OSPF
+- [x] tout survit à un redémarrage
 
 ## Vérifier et dépanner
 
@@ -206,8 +200,6 @@ $ traceroute -n 10.1.20.10
 | `sudo tcpdump -ni wg0 ip proto 89` | Les messages OSPF passent dans le tunnel |
 
 Le tableau de dépannage complet est dans le tuto du cours (`TUTO_FRR_OSPF.md`, section 5) et dans [depannage.md](depannage.md).
-
----
 
 ## À retenir
 

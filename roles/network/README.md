@@ -1,6 +1,6 @@
 # Rôle `network`
 
-Configure les interfaces du lab (LAN, WAN) — **une interface = un fichier** `/etc/network/interfaces.d/<nom>` (MC02).
+Configure les interfaces du lab (LAN, WAN), avec **une interface = un fichier** : `/etc/network/interfaces.d/<nom>` (MC02).
 
 ## Variables (dans `host_vars/`)
 

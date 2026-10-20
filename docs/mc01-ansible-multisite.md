@@ -1,6 +1,6 @@
-# MC01 — Ansible pour une infra multi-site
+# MC01 : Ansible pour une infra multi-site
 
-[← Retour au README](../README.md)
+[Retour au README](../README.md)
 
 ## Objectif
 
@@ -12,7 +12,7 @@ Passer de « un playbook pour deux ou trois machines » à **un projet Ansible s
 
 1. **Préparer** : 1 Debian (site A) et 1 Windows Server Core (site B), joignables en SSH et WinRM.
 2. **Structurer** : le dépôt, un inventaire par site et par rôle, `group_vars`, `ansible.cfg`.
-3. **Écrire** : un rôle `baseline` — nom d'hôte, fuseau horaire, NTP, compte admin — pour Linux **et** Windows.
+3. **Écrire** : un rôle `baseline` (nom d'hôte, fuseau horaire, NTP, compte admin) pour Linux **et** Windows.
 4. **Protéger** : le mot de passe Windows dans le vault.
 
 ### Résultat attendu
@@ -20,8 +20,6 @@ Passer de « un playbook pour deux ou trois machines » à **un projet Ansible s
 - `site.yml` passe sans erreur.
 - Le 2e passage affiche `changed=0`.
 - Aucun secret en clair dans Git.
-
----
 
 ## Ce qui a été construit
 
@@ -53,10 +51,17 @@ windows:  { hosts: { dc02: } }
 
 ```
 @all
- ├─ @site_a   → rtr-a
- ├─ @site_b   → dc02
- ├─ @linux    → rtr-a
- └─ @windows  → dc02
+$ ansible-inventory --graph
+@all:
+  |--@ungrouped:
+  |--@site_a:
+  |  |--rtr-a
+  |--@site_b:
+  |  |--dc02
+  |--@linux:
+  |  |--rtr-a
+  |--@windows:
+  |  |--dc02
 ```
 
 ### La précédence des variables, démontrée
@@ -81,7 +86,7 @@ Un seul rôle, deux fichiers de tâches choisis selon le système (`ansible_os_f
 | Fonction | Linux (`tasks/linux.yml`) | Windows (`tasks/windows.yml`) |
 |---|---|---|
 | Nom d'hôte | `ansible.builtin.hostname` + ligne `127.0.1.1` dans `/etc/hosts` | `ansible.windows.win_hostname` (+ redémarrage si besoin) |
-| Fuseau horaire | `community.general.timezone` → `Europe/Paris` | `community.windows.win_timezone` → `Romance Standard Time` |
+| Fuseau horaire | `community.general.timezone` (`Europe/Paris`) | `community.windows.win_timezone` (`Romance Standard Time`) |
 | NTP | paquet `chrony` + template `chrony.conf.j2` | registre `W32Time\Parameters` (`NtpServer`, `Type=NTP`) |
 | Compte admin | `sysadmin`, groupe `sudo` | `sysadmin`, groupe `Administrateurs` |
 
@@ -112,8 +117,6 @@ nano ~/.vault_pass && chmod 600 ~/.vault_pass       # le mot de passe du vault, 
 ansible-vault create vault/secrets.yml              # vault_win_password, vault_linux_become_password, vault_admin_password
 ```
 
----
-
 ## Résultats
 
 Second passage :
@@ -131,9 +134,9 @@ git show HEAD:vault/secrets.yml | head -1
 $ANSIBLE_VAULT;1.1;AES256
 ```
 
-✅ `site.yml` passe sans erreur · ✅ `changed=0` au 2e passage · ✅ aucun secret en clair dans Git.
-
----
+- [x] `site.yml` passe sans erreur
+- [x] `changed=0` au second passage
+- [x] aucun secret en clair dans Git
 
 ## Difficultés rencontrées
 
@@ -143,11 +146,9 @@ $ANSIBLE_VAULT;1.1;AES256
 | Création du compte Windows en échec (message masqué) | `no_log: true` cache l'erreur | Retirer temporairement `no_log`, lancer avec `--limit dc02` : *« Ce mot de passe ne correspond pas aux critères de stratégie »* |
 | Mot de passe refusé par Windows | Politique de complexité (longueur, 3 types de caractères, pas le nom du compte) | Mot de passe conforme dans `vault_admin_password` |
 | Le NTP Windows changé mais pas pris en compte | Le play s'est arrêté sur dc02 avant les handlers | Redémarrer `w32time` une fois à la main : `ansible windows -m ansible.windows.win_service -a "name=w32time state=restarted"` |
-| `w32tm /query /source` répondait encore `Local CMOS Clock` | Le service n'avait pas relu sa configuration | `w32tm /config /update` puis `w32tm /resync /force` → source `time.windows.com,0x9` |
+| `w32tm /query /source` répondait encore `Local CMOS Clock` | Le service n'avait pas relu sa configuration | `w32tm /config /update` puis `w32tm /resync /force`, la source devient `time.windows.com,0x9` |
 
 Voir aussi [le dépannage général](depannage.md).
-
----
 
 ## À retenir
 

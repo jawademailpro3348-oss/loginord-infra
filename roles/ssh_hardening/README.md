@@ -12,7 +12,7 @@ Ferme l'accès SSH aux seuls administrateurs, par clé (MC03).
 | Variable | Défaut |
 |---|---|
 | `ssh_allowed_group` | `ssh-admins` (deviendra un groupe AD) |
-| `ssh_admins` | `[ansible_user, admin_user]` — **le compte d'Ansible doit y être** |
+| `ssh_admins` | `[ansible_user, admin_user]` (**le compte d'Ansible doit y être**) |
 | `ssh_admin_pubkey` | `~/.ssh/id_ed25519.pub` du contrôleur |
 
 ## Précaution

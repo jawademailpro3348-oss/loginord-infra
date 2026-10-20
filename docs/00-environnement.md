@@ -1,11 +1,9 @@
-# 00 — L'environnement du lab
+# L'environnement du lab
 
-[← Retour au README](../README.md)
+[Retour au README](../README.md)
 
 Ce document décrit **tout ce qui est fait à la main, avant Ansible** : le poste, l'hyperviseur, les réseaux et la création des VM.
 Le cours le dit : *« Avant Ansible, la VM doit être joignable en SSH ou WinRM. À documenter. »* C'est ce document.
-
----
 
 ## 1. Le poste de travail
 
@@ -43,8 +41,6 @@ ssh-keygen -t ed25519 -C "jawad@loginord"
 > Le dépôt vit dans `~/loginord-infra` (système de fichiers Linux). Sous `/mnt/c/…`, Ansible refuse de lire `ansible.cfg` (dossier « world writable »).
 > Accès depuis l'Explorateur Windows : `\\wsl.localhost\Ubuntu-24.04\home\jawad\loginord-infra`.
 
----
-
 ## 2. Les réseaux VirtualBox
 
 | Réseau | Type VirtualBox | Adresses | Usage |
@@ -59,32 +55,28 @@ Règle : **on ne touche jamais à la carte Host-Only avec Ansible** (« ne coupe
 
 > Si WSL ne joint pas le réseau Host-Only : créer `C:\Users\<vous>\.wslconfig` avec `[wsl2]` / `networkingMode=mirrored`, puis `wsl --shutdown`. (Pas nécessaire ici : le mode NAT par défaut de WSL a fonctionné.)
 
----
-
 ## 3. Les machines
 
 | VM | Système | RAM | Carte 1 | Carte 2 | Carte 3 (`enp0s9`) | Carte 4 (`enp0s10`) | IP Host-Only |
 |---|---|---|---|---|---|---|---|
-| `rtr-a` | Debian 13 | 512 Mo – 1 Go | NAT | Host-Only | interne `lan-a` | interne `wan` | 192.168.56.10 |
-| `rtr-b` | Debian 13 | 512 Mo – 1 Go | NAT | Host-Only | interne `lan-b` | interne `wan` | 192.168.56.11 |
-| `client-a` | Debian 13 | 512 Mo – 1 Go | NAT | Host-Only | interne `lan-a` | — | 192.168.56.12 |
-| `client-b` | Debian 13 | 512 Mo – 1 Go | NAT | Host-Only | interne `lan-b` | — | 192.168.56.13 |
-| `dc02` | Windows Server 2025 Core (éval.) | 4 Go | NAT | Host-Only | — | — | 192.168.56.20 |
+| `rtr-a` | Debian 13 | 512 Mo à 1 Go | NAT | Host-Only | interne `lan-a` | interne `wan` | 192.168.56.10 |
+| `rtr-b` | Debian 13 | 512 Mo à 1 Go | NAT | Host-Only | interne `lan-b` | interne `wan` | 192.168.56.11 |
+| `client-a` | Debian 13 | 512 Mo à 1 Go | NAT | Host-Only | interne `lan-a` |  | 192.168.56.12 |
+| `client-b` | Debian 13 | 512 Mo à 1 Go | NAT | Host-Only | interne `lan-b` |  | 192.168.56.13 |
+| `dc02` | Windows Server 2025 Core (éval.) | 4 Go | NAT | Host-Only |  |  | 192.168.56.20 |
 
 Les noms d'interface Debian suivent la position de la carte : carte 1 = `enp0s3`, 2 = `enp0s8`, 3 = `enp0s9`, 4 = `enp0s10` (vérifier avec `ip -br a`).
-
----
 
 ## 4. Créer les Debian : un modèle, quatre clones
 
 ### 4.1 Le modèle `deb-template`
 
-1. VirtualBox → Nouvelle : ISO Debian 13 netinst, **cocher « Skip Unattended Installation »**, 1 Go RAM, 10 Go disque.
+1. VirtualBox > Nouvelle : ISO Debian 13 netinst, **cocher « Skip Unattended Installation »**, 1 Go RAM, 10 Go disque.
    Carte 1 NAT, carte 2 Host-Only.
 2. Pendant l'installation :
    - clavier **Français** ;
    - interface réseau principale : **`enp0s3`** (la NAT) ;
-   - mot de passe root **vide** → l'utilisateur reçoit `sudo` ;
+   - mot de passe root **vide**, l'utilisateur reçoit alors `sudo` ;
    - utilisateur `jawad` (même mot de passe que `vault_linux_become_password`) ;
    - **Sélection des logiciels** (flèches + barre d'espace) : décocher l'environnement de bureau et GNOME, cocher **serveur SSH** et **utilitaires usuels du système** ;
    - GRUB : Oui, sur `/dev/sda`.
@@ -114,7 +106,7 @@ Les noms d'interface Debian suivent la position de la carte : carte 1 = `enp0s3`
 
 ### 4.2 Les clones
 
-1. Clic droit sur le modèle → Cloner : **clone intégral**, **nouvelles adresses MAC pour toutes les cartes**. Noms : `rtr-a`, `rtr-b`, `client-a`, `client-b`.
+1. Clic droit sur le modèle > Cloner : **clone intégral**, **nouvelles adresses MAC pour toutes les cartes**. Noms : `rtr-a`, `rtr-b`, `client-a`, `client-b`.
 2. Ajouter les cartes 3 et 4 (réseaux internes) selon le tableau ci-dessus, VM éteinte.
 3. Démarrer les clones **un par un** (ils ont tous `.99` au départ) : modifier `/etc/network/interfaces.d/mgmt` avec l'IP définitive, puis `sudo reboot`.
 4. Depuis WSL, accepter les empreintes une fois :
@@ -123,8 +115,6 @@ Les noms d'interface Debian suivent la position de la carte : carte 1 = `enp0s3`
    ```
 
 Le nom d'hôte (`deb-template` dans les clones) est corrigé ensuite par Ansible (rôle `baseline`).
-
----
 
 ## 5. Créer le Windows Server `dc02`
 
@@ -145,9 +135,7 @@ Le nom d'hôte (`deb-template` dans les clones) est corrigé ensuite par Ansible
    ```
 7. Clavier AZERTY si besoin : `Set-WinDefaultInputMethodOverride -InputTip 040C:0000040C`, puis se reconnecter.
 
-> Dans VirtualBox : **Entrée → Clavier → Insérer Ctrl-Alt-Suppr** pour déverrouiller Windows (le vrai Ctrl+Alt+Suppr est capturé par le PC).
-
----
+> Dans VirtualBox : **Entrée > Clavier > Insérer Ctrl-Alt-Suppr** pour déverrouiller Windows (le vrai Ctrl+Alt+Suppr est capturé par le PC).
 
 ## 6. Vérifier que tout est joignable
 
@@ -161,8 +149,6 @@ ansible windows -m ansible.windows.win_ping -e @vault/secrets.yml
 ```
 
 Quatre `pong` côté Linux et un côté Windows : l'environnement est prêt, la suite se fait avec Ansible.
-
----
 
 ## Récapitulatif des gestes manuels
 

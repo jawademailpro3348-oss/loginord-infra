@@ -1,6 +1,6 @@
-# MC03 — Administration à distance sécurisée
+# MC03 : administration à distance sécurisée
 
-[← Retour au README](../README.md)
+[Retour au README](../README.md)
 
 ## Objectif
 
@@ -20,8 +20,6 @@ Permettre aux administrateurs d'intervenir à distance **sans ouvrir la porte au
 - Les 3 tests SSH donnent le bon résultat.
 - Le rôle passe deux fois : `changed=0`.
 - Une commande lancée à distance sur Windows.
-
----
 
 ## Partie Linux : le rôle `ssh_hardening`
 
@@ -58,8 +56,6 @@ Le groupe autorisé est une **variable** (`ssh_allowed_group`) : il changera qua
 
 Une **seconde session SSH ouverte** sur `rtr-a` pendant le premier passage, et la console VirtualBox à portée de main : si le durcissement avait mal tourné, on pouvait encore réparer.
 
----
-
 ## Résultats Linux
 
 **Idempotence** : 1er passage `changed=6` sur chaque machine durcie, 2e passage **`changed=0`** sur les quatre.
@@ -71,11 +67,13 @@ $ ssh root@192.168.56.10
 root@192.168.56.10: Permission denied (publickey).
 
 $ ssh -o PubkeyAuthentication=no jawad@192.168.56.10
-jawad@192.168.56.10: Permission denied (publickey).      ← aucun mot de passe demandé
+jawad@192.168.56.10: Permission denied (publickey).
 
 $ ssh jawad@192.168.56.10 hostname
 rtr-a
 ```
+
+Au deuxième test, aucun mot de passe n'est même demandé : le serveur n'accepte plus que les clés.
 
 **Les journaux** (`sudo journalctl -u ssh`) :
 
@@ -90,8 +88,6 @@ Connection closed by invalid user root 192.168.56.1 port 34468 [preauth]
 | `Accepted publickey for jawad … ED25519 SHA256:…` | Connexion réussie : **qui**, **d'où**, **avec quelle clé** |
 | `not allowed because none of user's groups are listed in AllowGroups` | root bloqué par `AllowGroups` |
 | `[preauth]` | Coupé **avant** toute authentification |
-
----
 
 ## Partie Windows : PowerShell Remoting
 
@@ -118,7 +114,7 @@ PS> Enter-PSSession -ComputerName 192.168.56.20 -Credential $cred
 [192.168.56.20]: PS C:\Users\Administrateur\Documents> hostname
 dc02
 [192.168.56.20]: PS C:\Users\Administrateur\Documents> Get-TimeZone
-Id          : Romance Standard Time                     ← posé par Ansible au MC01
+Id          : Romance Standard Time
 DisplayName : (UTC+01:00) Bruxelles, Copenhague, Madrid, Paris
 
 PS> Invoke-Command -ComputerName 192.168.56.20 -Credential $cred -ScriptBlock { … }
@@ -126,9 +122,11 @@ Status   Name      DisplayName      PSComputerName
 Running  W32Time   Temps Windows    192.168.56.20
 ```
 
-✅ 3 tests SSH conformes · ✅ `changed=0` au 2e passage · ✅ commande lancée à distance sur Windows.
+Le fuseau `Romance Standard Time` est celui posé par Ansible au MC01.
 
----
+- [x] les 3 tests SSH donnent le bon résultat
+- [x] `changed=0` au second passage
+- [x] une commande lancée à distance sur Windows
 
 ## Linux et Windows, côte à côte
 
@@ -138,8 +136,6 @@ Running  W32Time   Temps Windows    192.168.56.20
 | Clés | `~/.ssh/authorized_keys` | `C:\ProgramData\ssh\administrators_authorized_keys` (pour un admin) |
 | Durcissement | `sshd_config.d/` | GPO, pare-feu Windows |
 | Journaux | `journalctl -u ssh` | `Get-WinEvent` : 4624 (succès) / 4625 (échec) |
-
----
 
 ## À savoir
 

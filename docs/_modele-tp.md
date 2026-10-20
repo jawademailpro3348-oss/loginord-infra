@@ -1,6 +1,6 @@
-# MCXX — Titre du TP
+# MCXX : titre du TP
 
-[← Retour au README](../README.md)
+[Retour au README](../README.md)
 
 > Copier ce fichier en `docs/mcXX-sujet.md`, le remplir au fil du TP, puis l'ajouter au tableau *Avancement des TP* du README.
 
@@ -19,8 +19,6 @@ Ce que le TP apporte à LogiNord, en une ou deux phrases.
 
 - …
 - Le playbook passe deux fois : `changed=0`.
-
----
 
 ## Ce qui a été construit
 
@@ -42,15 +40,13 @@ Ce qui aurait pu être fait autrement, et pourquoi ce choix.
 
 Nouvelles variables `vault_…` (et ajout dans `vault/secrets.yml.exemple`).
 
----
-
 ## Résultats
 
 Sorties des commandes de vérification, PLAY RECAP du second passage.
 
-✅ … · ✅ … · ✅ …
-
----
+- [ ] …
+- [ ] …
+- [ ] …
 
 ## Difficultés rencontrées
 

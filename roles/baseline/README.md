@@ -17,8 +17,8 @@ Socle commun à **toutes** les machines, Linux et Windows (MC01).
 | `timezone_linux` | `Etc/UTC` | `Europe/Paris` | `group_vars/all.yml` |
 | `timezone_windows` | `UTC` | `Romance Standard Time` | `group_vars/all.yml` |
 | `admin_user` | `admin` | `sysadmin` | `group_vars/all.yml` |
-| `admin_password` | — | `{{ vault_admin_password }}` | `group_vars/all.yml` + vault |
-| `win_admin_group` | — | `Administrateurs` | `group_vars/windows.yml` |
+| `admin_password` |  | `{{ vault_admin_password }}` | `group_vars/all.yml` + vault |
+| `win_admin_group` |  | `Administrateurs` | `group_vars/windows.yml` |
 
 ## Notes
 
