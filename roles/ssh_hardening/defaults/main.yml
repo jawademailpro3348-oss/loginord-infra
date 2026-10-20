@@ -1,0 +1,13 @@
+---
+# Seul ce groupe a le droit d'entrer en SSH.
+# Variable, car au MC6 ce sera un groupe AD.
+ssh_allowed_group: ssh-admins
+
+# Les comptes admin qui reçoivent la clé et entrent dans le groupe.
+# ansible_user (jawad) DOIT y être, sinon Ansible s'enferme dehors.
+ssh_admins:
+  - "{{ ansible_user }}"
+  - "{{ admin_user }}"
+
+# Une clé par personne : ici la tienne, prise sur le contrôleur (WSL)
+ssh_admin_pubkey: "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_ed25519.pub') }}"

@@ -21,3 +21,10 @@
     - router
     - wireguard
     - frr
+
+- name: Accès SSH durci sur les Linux
+  hosts: linux
+  vars_files:
+    - vault/secrets.yml
+  roles:
+    - ssh_hardening

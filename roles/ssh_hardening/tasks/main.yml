@@ -1,0 +1,36 @@
+---
+# Ordre important : groupe et clés AVANT le durcissement,
+# sinon on se ferme la porte au nez.
+- name: Groupe autorisé à se connecter en SSH
+  ansible.builtin.group:
+    name: "{{ ssh_allowed_group }}"
+    state: present
+
+- name: Les administrateurs dans ce groupe
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: "{{ ssh_allowed_group }}"
+    append: true
+  loop: "{{ ssh_admins }}"
+
+- name: Clé publique déposée
+  ansible.posix.authorized_key:
+    user: "{{ item }}"
+    key: "{{ ssh_admin_pubkey }}"
+    state: present
+  loop: "{{ ssh_admins }}"
+
+- name: Fichier de durcissement sshd
+  ansible.builtin.template:
+    src: 10-durcissement.conf.j2
+    dest: /etc/ssh/sshd_config.d/10-durcissement.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Valider et recharger sshd
+
+- name: Service ssh démarré
+  ansible.builtin.service:
+    name: ssh
+    state: started
+    enabled: true

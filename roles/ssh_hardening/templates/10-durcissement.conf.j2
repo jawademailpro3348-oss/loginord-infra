@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+# Lu AVANT /etc/ssh/sshd_config : avec sshd, la première valeur lue gagne.
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+AllowGroups {{ ssh_allowed_group }}
+MaxAuthTries 3
+LoginGraceTime 30
+X11Forwarding no

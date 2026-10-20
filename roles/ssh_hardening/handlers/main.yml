@@ -1,0 +1,12 @@
+---
+# sshd -t vérifie la syntaxe sans rien appliquer :
+# une erreur arrête Ansible AVANT le rechargement.
+- name: Valider et recharger sshd
+  ansible.builtin.command: /usr/sbin/sshd -t
+  notify: Recharger sshd
+
+# reload ne coupe pas les sessions en cours
+- name: Recharger sshd
+  ansible.builtin.service:
+    name: ssh
+    state: reloaded
